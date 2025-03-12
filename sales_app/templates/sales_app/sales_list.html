@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block title %}Продажі | Моніторинг продажів{% endblock %}
+
+{% block content %}
+<div class="header">
+    <h1>Продажі</h1>
+    <a href="{% url 'add_sale' %}" class="btn">Додати продаж</a>
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th>Дата</th>
+            <th>Працівник</th>
+            <th>Товар</th>
+            <th>Кількість</th>
+            <th>Сума</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for sale in sales %}
+        <tr>
+            <td>{{ sale.date|date:"d.m.Y H:i" }}</td>
+            <td>{{ sale.employee }}</td>
+            <td>{{ sale.product }}</td>
+            <td>{{ sale.quantity }}</td>
+            <td>{{ sale.total_price }} грн</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5" style="text-align: center;">Немає даних про продажі</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

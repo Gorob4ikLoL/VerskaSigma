@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}Товари | Моніторинг продажів{% endblock %}
+
+{% block content %}
+<div class="header">
+    <h1>Товари</h1>
+    <a href="/admin/sales_app/product/add/" class="btn">Додати товар</a>
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th>Назва</th>
+            <th>Ціна</th>
+            <th>Статус</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for product in products %}
+        <tr>
+            <td>{{ product.name }}</td>
+            <td>{{ product.price }} грн</td>
+            <td>{% if product.active %}Активний{% else %}Неактивний{% endif %}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="3" style="text-align: center;">Немає даних про товари</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}Додати продаж | Моніторинг продажів{% endblock %}
+
+{% block content %}
+<h1>Додати продаж</h1>
+
+<div style="max-width: 500px; margin: 0 auto;">
+    <form method="post">
+        {% csrf_token %}
+        
+        <div style="margin-bottom: 15px;">
+            <label for="{{ form.employee.id_for_label }}" style="display: block; margin-bottom: 5px; font-weight: bold;">
+                Працівник:
+            </label>
+            {{ form.employee }}
+            {% if form.employee.errors %}
+                <div style="color: red; margin-top: 5px;">{{ form.employee.errors }}</div>
+            {% endif %}
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+            <label for="{{ form.product.id_for_label }}" style="display: block; margin-bottom: 5px; font-weight: bold;">
+                Товар:
+            </label>
+            {{ form.product }}
+            {% if form.product.errors %}
+                <div style="color: red; margin-top: 5px;">{{ form.product.errors }}</div>
+            {% endif %}
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+            <label for="{{ form.quantity.id_for_label }}" style="display: block; margin-bottom: 5px; font-weight: bold;">
+                Кількість:
+            </label>
+            {{ form.quantity }}
+            {% if form.quantity.errors %}
+                <div style="color: red; margin-top: 5px;">{{ form.quantity.errors }}</div>
+            {% endif %}
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+            <label for="{{ form.date.id_for_label }}" style="display: block; margin-bottom: 5px; font-weight: bold;">
+                Дата продажу:
+            </label>
+            {{ form.date }}
+            {% if form.date.errors %}
+                <div style="color: red; margin-top: 5px;">{{ form.date.errors }}</div>
+            {% endif %}
+        </div>
+        
+        <button type="submit" class="btn" style="width: 100%;">Зберегти</button>
+    </form>
+</div>
+{% endblock %}

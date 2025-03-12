@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}Таблиця лідерів | Моніторинг продажів{% endblock %}
+
+{% block content %}
+<h1>Таблиця лідерів за останні 30 днів</h1>
+
+<table>
+    <thead>
+        <tr>
+            <th>Місце</th>
+            <th>Працівник</th>
+            <th>Посада</th>
+            <th>Кількість продажів</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for employee in leaders %}
+        <tr style="{% if forloop.counter == 1 %}background-color: #ffd700; font-weight: bold;{% elif forloop.counter == 2 %}background-color: #c0c0c0;{% elif forloop.counter == 3 %}background-color: #cd7f32;{% endif %}">
+            <td>{{ forloop.counter }}</td>
+            <td>{{ employee }}</td>
+            <td>{{ employee.position }}</td>
+            <td>{{ employee.sales_count }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="4" style="text-align: center;">Немає даних про продажі</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

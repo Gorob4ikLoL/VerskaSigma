@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}Щоденна статистика | Моніторинг продажів{% endblock %}
+
+{% block content %}
+<h1>Статистика продажів за останні 7 днів</h1>
+
+<table>
+    <thead>
+        <tr>
+            <th>Дата</th>
+            <th>Кількість продажів</th>
+            <th>Дохід</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for day in daily_data %}
+        <tr>
+            <td>{{ day.date|date:"d.m.Y" }} {% if forloop.last %}(сьогодні){% endif %}</td>
+            <td>{{ day.sales_count }}</td>
+            <td>{{ day.revenue }} грн</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="3" style="text-align: center;">Немає даних про продажі</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
