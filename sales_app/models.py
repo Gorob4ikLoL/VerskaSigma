@@ -1,3 +1,4 @@
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
@@ -18,7 +19,13 @@ class Employee(models.Model):
 
 class Product(models.Model):
     name = models.CharField(max_length=255, verbose_name="Назва товару")
-    price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Ціна")
+    price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        verbose_name="Ціна",
+        validators=[MinValueValidator(0.01)]
+    )
+    quantity = models.PositiveIntegerField(verbose_name="Кількість", default=0)
     active = models.BooleanField(default=True, verbose_name="Активний")
 
     def __str__(self):
@@ -41,12 +48,17 @@ class SalesPlan(models.Model):
     class Meta:
         verbose_name = "План продажів"
         verbose_name_plural = "Плани продажів"
+        unique_together = ('product', 'start_date', 'end_date')
 
 
 class Sale(models.Model):
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE, verbose_name="Працівник")
     product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name="Товар")
-    quantity = models.IntegerField(default=1, verbose_name="Кількість")
+    quantity = models.IntegerField(
+        default=1,
+        verbose_name="Кількість",
+        validators=[MinValueValidator(1)]
+    )
     date = models.DateTimeField(default=timezone.now, verbose_name="Дата продажу")
 
     @property
