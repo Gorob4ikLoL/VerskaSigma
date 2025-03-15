@@ -5,28 +5,89 @@
 {% block content %}
 <h1>Таблиця лідерів за останні 30 днів</h1>
 
+<!-- Таблиця лідерів -->
 <table>
     <thead>
-        <tr>
-            <th>Місце</th>
-            <th>Працівник</th>
-            <th>Посада</th>
-            <th>Кількість продажів</th>
-        </tr>
+    <tr>
+        <th>Місце</th>
+        <th>Працівник</th>
+        <th>Посада</th>
+        <th>Кількість продажів</th>
+    </tr>
     </thead>
     <tbody>
-        {% for employee in leaders %}
-        <tr style="{% if forloop.counter == 1 %}background-color: #ffd700; font-weight: bold;{% elif forloop.counter == 2 %}background-color: #c0c0c0;{% elif forloop.counter == 3 %}background-color: #cd7f32;{% endif %}">
-            <td>{{ forloop.counter }}</td>
-            <td>{{ employee }}</td>
-            <td>{{ employee.position }}</td>
-            <td>{{ employee.sales_count }}</td>
-        </tr>
-        {% empty %}
-        <tr>
-            <td colspan="4" style="text-align: center;">Немає даних про продажі</td>
-        </tr>
-        {% endfor %}
+    {% for employee in leaders %}
+    <tr style="{% if forloop.counter == 1 %}background-color: #ffd700; font-weight: bold;{% elif forloop.counter == 2 %}background-color: #c0c0c0;{% elif forloop.counter == 3 %}background-color: #cd7f32;{% endif %}">
+        <td>{{ forloop.counter }}</td>
+        <td>{{ employee.user.get_full_name }}</td>
+        <td>{{ employee.position }}</td>
+        <td>{{ employee.sales_count }}</td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="4" style="text-align: center;">Немає даних про продажі</td>
+    </tr>
+    {% endfor %}
     </tbody>
 </table>
+
+<!-- Графік трендів продажів -->
+<h2>Тренди продажів за останні 30 днів</h2>
+<canvas id="salesTrendChart" width="400" height="200"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Дані для графіку трендів продажів за останні 30 днів
+    const labels = [
+        {% for employee in leaders %}
+    "{{ employee.user.get_full_name }}",
+    {% endfor %}
+    ];
+
+    const salesData = [
+        {% for employee in leaders %}
+    {{ employee.sales_count }},
+    {% endfor %}
+    ];
+
+    // Створення графіка за допомогою Chart.js
+    const ctx = document.getElementById('salesTrendChart').getContext('2d');
+    const salesTrendChart = new Chart(ctx, {
+        type: 'bar',  // Можна змінити на 'line' для лінійного графіку
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Кількість продажів',
+                data: salesData,
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Кількість продажів'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(tooltipItem) {
+                            return `Продажі: ${tooltipItem.raw}`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+</script>
 {% endblock %}

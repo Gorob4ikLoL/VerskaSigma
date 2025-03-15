@@ -73,16 +73,16 @@ def add_sale(request):
 
 
 def leaderboard(request):
-    # Таблиця лідерів за останні 30 днів
     thirty_days_ago = timezone.now() - timedelta(days=30)
 
+    # Отримуємо топ співробітників за кількістю продажів
     leaders = Employee.objects.annotate(
-        sales_count=Count('sale', filter=Sale.objects.filter(date__gte=thirty_days_ago).values('id'))
-    ).order_by('-sales_count')
+        sales_count=Count('sale', filter=Sale.objects.filter(date__gte=thirty_days_ago))
+    ).order_by('-sales_count')[:10]
 
-    return render(request, 'sales_app/leaderboard.html', {'leaders': leaders})
-
-
+    return render(request, 'sales_app/leaderboard.html', {
+        'leaders': leaders,
+    })
 def daily_stats(request):
     # Статистика за останні 7 днів
     seven_days_ago = timezone.now().date() - timedelta(days=7)
