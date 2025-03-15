@@ -8,6 +8,34 @@
     <a href="{% url 'add_sale' %}" class="btn">Додати продаж</a>
 </div>
 
+<div style="background-color: #f9f9f9; padding: 15px; margin-bottom: 20px; border-radius: 5px; border: 1px solid #ddd;">
+    <h3>Фільтрувати продажі</h3>
+    <form method="get">
+        <div style="display: flex; flex-wrap: wrap; gap: 15px;">
+            <div style="flex: 1; min-width: 200px;">
+                <label style="display: block; margin-bottom: 5px;">{{ filter_form.start_date.label }}</label>
+                {{ filter_form.start_date }}
+            </div>
+            <div style="flex: 1; min-width: 200px;">
+                <label style="display: block; margin-bottom: 5px;">{{ filter_form.end_date.label }}</label>
+                {{ filter_form.end_date }}
+            </div>
+            <div style="flex: 1; min-width: 200px;">
+                <label style="display: block; margin-bottom: 5px;">Працівник</label>
+                {{ filter_form.employee }}
+            </div>
+            <div style="flex: 1; min-width: 200px;">
+                <label style="display: block; margin-bottom: 5px;">Товар</label>
+                {{ filter_form.product }}
+            </div>
+        </div>
+        <div style="margin-top: 15px;">
+            <button type="submit" class="btn">Застосувати фільтр</button>
+            <a href="{% url 'sales_list' %}" class="btn" style="background-color: #6c757d;">Скинути</a>
+        </div>
+    </form>
+</div>
+
 <table>
     <thead>
         <tr>

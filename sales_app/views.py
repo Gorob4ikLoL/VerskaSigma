@@ -4,7 +4,7 @@ from django.db.models import Sum, Count
 from django.utils import timezone
 from datetime import timedelta
 from .models import Employee, Product, Sale, SalesPlan
-from .forms import SaleForm
+from .forms import SaleForm, SalesFilterForm
 
 
 def home(request):
@@ -35,11 +35,29 @@ def product_list(request):
     products = Product.objects.all()
     return render(request, 'sales_app/product_list.html', {'products': products})
 
-
 def sales_list(request):
     sales = Sale.objects.all().order_by('-date')
-    return render(request, 'sales_app/sales_list.html', {'sales': sales})
 
+    filter_form = SalesFilterForm(request.GET)
+
+    if filter_form.is_valid():
+        start_date = filter_form.cleaned_data.get('start_date')
+        end_date = filter_form.cleaned_data.get('end_date')
+        employee = filter_form.cleaned_data.get('employee')
+        product = filter_form.cleaned_data.get('product')
+
+        if start_date:
+            sales = sales.filter(date__date__gte=start_date)
+        if end_date:
+            sales = sales.filter(date__date__lte=end_date)
+
+        if employee:
+            sales = sales.filter(employee=employee)
+
+        if product:
+            sales = sales.filter(product=product)
+
+    return render(request, 'sales_app/sales_list.html', {'sales': sales, 'filter_form': filter_form})
 
 def add_sale(request):
     if request.method == 'POST':
