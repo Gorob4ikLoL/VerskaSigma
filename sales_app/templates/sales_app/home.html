@@ -5,59 +5,76 @@
 {% block content %}
 <h1>Моніторинг продажів додаткових товарів</h1>
 
-<div style="display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 30px;">
-    <div style="flex: 1; min-width: 200px; background-color: #f9f9f9; padding: 20px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+<!-- Основні картки статистики -->
+<div class="stats-row">
+    <div class="stat-card">
         <h3>Всього продажів</h3>
-        <p style="font-size: 24px; font-weight: bold;">{{ total_sales }}</p>
+        <div class="stat-value">{{ total_sales }}</div>
+        <div class="stat-label">транзакцій</div>
     </div>
-    
-    <div style="flex: 1; min-width: 200px; background-color: #f9f9f9; padding: 20px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+
+    <div class="stat-card">
         <h3>Загальний дохід</h3>
-        <p style="font-size: 24px; font-weight: bold;">{{ total_revenue }} грн</p>
+        <div class="stat-value">{{ total_revenue }}</div>
+        <div class="stat-label">грн</div>
     </div>
-    
-    <div style="flex: 1; min-width: 200px; background-color: #f9f9f9; padding: 20px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+
+    <div class="stat-card">
         <h3>Працівників</h3>
-        <p style="font-size: 24px; font-weight: bold;">{{ employees_count }}</p>
+        <div class="stat-value">{{ employees_count }}</div>
+        <div class="stat-label">активних</div>
     </div>
-    
-    <div style="flex: 1; min-width: 200px; background-color: #f9f9f9; padding: 20px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+
+    <div class="stat-card">
         <h3>Товарів</h3>
-        <p style="font-size: 24px; font-weight: bold;">{{ products_count }}</p>
+        <div class="stat-value">{{ products_count }}</div>
+        <div class="stat-label">в системі</div>
     </div>
 </div>
 
-<h2>Останні продажі</h2>
-<table>
-    <thead>
-        <tr>
-            <th>Дата</th>
-            <th>Працівник</th>
-            <th>Товар</th>
-            <th>Кількість</th>
-            <th>Сума</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for sale in recent_sales %}
-        <tr>
-            <td>{{ sale.date|date:"d.m.Y H:i" }}</td>
-            <td>{{ sale.employee }}</td>
-            <td>{{ sale.product }}</td>
-            <td>{{ sale.quantity }}</td>
-            <td>{{ sale.total_price }} грн</td>
-        </tr>
-        {% empty %}
-        <tr>
-            <td colspan="5" style="text-align: center;">Немає даних про продажі</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<!-- Останні продажі -->
+<div class="card">
+    <div class="header">
+        <h2>Останні продажі</h2>
+        <a href="{% url 'sales_list' %}" class="btn btn-secondary">Всі продажі</a>
+    </div>
 
-<p>
-    <a href="{% url 'add_sale' %}" class="btn">Додати продаж</a>
-    <a href="{% url 'sales_list' %}" class="btn" style="background-color: #2196F3;">Переглянути всі продажі</a>
-    <a href="{% url 'leaderboard' %}" class="btn" style="background-color: #FF9800;">Таблиця лідерів</a>
-</p>
+    <table>
+        <thead>
+            <tr>
+                <th>Дата</th>
+                <th>Працівник</th>
+                <th>Товар</th>
+                <th>Кількість</th>
+                <th>Сума</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for sale in recent_sales %}
+            <tr>
+                <td>{{ sale.date|date:"d.m.Y H:i" }}</td>
+                <td>{{ sale.employee }}</td>
+                <td>{{ sale.product }}</td>
+                <td>{{ sale.quantity }}</td>
+                <td>{{ sale.total_price }} грн</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" style="text-align: center;">Немає даних про продажі</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Кнопки швидких дій -->
+<div class="card">
+    <h2>Швидкі дії</h2>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <a href="{% url 'add_sale' %}" class="btn">Додати продаж</a>
+        <a href="{% url 'sales_list' %}" class="btn btn-secondary">Всі продажі</a>
+        <a href="{% url 'leaderboard' %}" class="btn btn-secondary">Таблиця лідерів</a>
+        <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary">Панель адміністратора</a>
+    </div>
+</div>
 {% endblock %}

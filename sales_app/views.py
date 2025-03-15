@@ -72,6 +72,8 @@ def add_sale(request):
     return render(request, 'sales_app/add_sale.html', {'form': form})
 
 
+# Переконаємося, що функції відповідають новому дизайну та інтегрованим шаблонам
+
 def leaderboard(request):
     thirty_days_ago = timezone.now() - timedelta(days=30)
 
@@ -83,6 +85,7 @@ def leaderboard(request):
     return render(request, 'sales_app/leaderboard.html', {
         'leaders': leaders,
     })
+
 def daily_stats(request):
     # Статистика за останні 7 днів
     seven_days_ago = timezone.now().date() - timedelta(days=7)
@@ -103,3 +106,63 @@ def daily_stats(request):
     daily_data.reverse()  # Щоб показати від старих до нових
 
     return render(request, 'sales_app/daily_stats.html', {'daily_data': daily_data})
+def admin_dashboard(request):
+    # Основні показники для головної сторінки
+    total_sales = Sale.objects.count()
+    total_revenue = Sale.objects.aggregate(total=Sum('product__price'))['total'] or 0
+    employees_count = Employee.objects.count()
+    products_count = Product.objects.count()
+
+    # Отримуємо поточну дату і початок місяця
+    today = timezone.now().date()
+    last_30_days = today - timedelta(days=30)
+
+    # Останні продажі
+    recent_sales = Sale.objects.order_by('-date')[:5]
+
+    # Топ працівників за останні 30 днів
+    top_employees = Employee.objects.filter(sale__date__date__gte=last_30_days) \
+                        .annotate(sales_count=Count('sale')) \
+                        .order_by('-sales_count')[:5]
+
+    # Активні плани продажів
+    active_plans = SalesPlan.objects.filter(
+        start_date__lte=today,
+        end_date__gte=today
+    )
+
+    plans_progress = []
+    for plan in active_plans:
+        # Обчислюємо кількість продажів для цього товару в період плану
+        actual_sales = Sale.objects.filter(
+            product=plan.product,
+            date__date__gte=plan.start_date,
+            date__date__lte=today
+        ).aggregate(total=Sum('quantity'))['total'] or 0
+
+        # Рахуємо відсоток виконання плану
+        if plan.target_amount > 0:
+            progress_percent = (actual_sales / plan.target_amount) * 100
+        else:
+            progress_percent = 0
+
+        plans_progress.append({
+            'plan': plan,
+            'actual_sales': actual_sales,
+            'progress_percent': progress_percent,
+            'days_left': (plan.end_date - today).days
+        })
+
+    # Товари з малим запасом
+    low_stock_products = Product.objects.filter(active=True, quantity__lt=10).order_by('quantity')[:5]
+
+    return render(request, 'sales_app/admin_dashboard.html', {
+        'total_sales': total_sales,
+        'total_revenue': total_revenue,
+        'employees_count': employees_count,
+        'products_count': products_count,
+        'recent_sales': recent_sales,
+        'top_employees': top_employees,
+        'plans_progress': plans_progress,
+        'low_stock_products': low_stock_products,
+    })
