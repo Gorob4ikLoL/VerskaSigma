@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+
+{% block title %}Панель адміністратора | Моніторинг продажів{% endblock %}
+
+{% block content %}
+<h1>Панель адміністратора</h1>
+
+<!-- Основні картки статистики -->
+<div style="display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 30px;">
+    <div style="flex: 1; min-width: 200px; background-color: #f9f9f9; padding: 20px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+        <h3>Всього продажів</h3>
+        <p style="font-size: 24px; font-weight: bold;">{{ total_sales }}</p>
+    </div>
+
+    <div style="flex: 1; min-width: 200px; background-color: #f9f9f9; padding: 20px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+        <h3>Загальний дохід</h3>
+        <p style="font-size: 24px; font-weight: bold;">{{ total_revenue }} грн</p>
+    </div>
+
+    <div style="flex: 1; min-width: 200px; background-color: #f9f9f9; padding: 20px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+        <h3>Працівників</h3>
+        <p style="font-size: 24px; font-weight: bold;">{{ employees_count }}</p>
+    </div>
+
+    <div style="flex: 1; min-width: 200px; background-color: #f9f9f9; padding: 20px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+        <h3>Товарів</h3>
+        <p style="font-size: 24px; font-weight: bold;">{{ products_count }}</p>
+    </div>
+</div>
+
+<!-- Активні плани продажів -->
+<h2>Активні плани продажів</h2>
+{% if plans_progress %}
+<div style="display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 30px;">
+    {% for plan_data in plans_progress %}
+    <div style="flex: 1; min-width: 250px; background-color: #f9f9f9; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+        <h3>{{ plan_data.plan.product.name }}</h3>
+        <div style="margin: 15px 0;">
+            <div>Період: {{ plan_data.plan.start_date|date:"d.m.Y" }} - {{ plan_data.plan.end_date|date:"d.m.Y" }}</div>
+            <div>Ціль: {{ plan_data.plan.target_amount }} шт.</div>
+            <div>Продано: {{ plan_data.actual_sales }} шт.</div>
+            <div>Залишилось днів: {{ plan_data.days_left }}</div>
+        </div>
+        <div style="background-color: #e0e0e0; border-radius: 4px; height: 25px; overflow: hidden;">
+            <div style="background-color: #4CAF50; height: 100%; color: white; text-align: center; line-height: 25px; width: {{ plan_data.progress_percent|floatformat:0 }}%; min-width: 30px;">
+                {{ plan_data.progress_percent|floatformat:0 }}%
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<p>Немає активних планів продажів</p>
+{% endif %}
+
+<!-- Дві колонки: лідери продажів і останні продажі -->
+<div style="display: flex; gap: 20px; margin-bottom: 30px; flex-wrap: wrap;">
+    <!-- Лідери продажів -->
+    <div style="flex: 1; min-width: 300px;">
+        <h2>Лідери продажів</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Працівник</th>
+                    <th>Посада</th>
+                    <th>Кількість продажів</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for employee in top_employees %}
+                <tr style="{% if forloop.counter == 1 %}background-color: #ffd700; font-weight: bold;{% elif forloop.counter == 2 %}background-color: #c0c0c0;{% elif forloop.counter == 3 %}background-color: #cd7f32;{% endif %}">
+                    <td>{{ employee }}</td>
+                    <td>{{ employee.position }}</td>
+                    <td>{{ employee.sales_count }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="3" style="text-align: center;">Немає даних про продажі</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div style="margin-top: 15px; text-align: right;">
+            <a href="{% url 'leaderboard' %}" class="btn" style="background-color: #FF9800;">Повна таблиця лідерів</a>
+        </div>
+    </div>
+
+    <!-- Останні продажі -->
+    <div style="flex: 1; min-width: 300px;">
+        <h2>Останні продажі</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Дата</th>
+                    <th>Працівник</th>
+                    <th>Товар</th>
+                    <th>Сума</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sale in recent_sales %}
+                <tr>
+                    <td>{{ sale.date|date:"d.m.Y H:i" }}</td>
+                    <td>{{ sale.employee }}</td>
+                    <td>{{ sale.product }}</td>
+                    <td>{{ sale.total_price }} грн</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" style="text-align: center;">Немає даних про продажі</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div style="margin-top: 15px; text-align: right;">
+            <a href="{% url 'sales_list' %}" class="btn" style="background-color: #2196F3;">Переглянути всі продажі</a>
+        </div>
+    </div>
+</div>
+
+<!-- Товари з малим запасом -->
+<h2>Товари з малим запасом</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Товар</th>
+            <th>Залишок</th>
+            <th>Ціна</th>
+            <th>Статус</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for product in low_stock_products %}
+        <tr style="{% if product.quantity <= 5 %}background-color: #ffebee;{% elif product.quantity <= 10 %}background-color: #fff8e1;{% endif %}">
+            <td>{{ product.name }}</td>
+            <td>{{ product.quantity }} шт.</td>
+            <td>{{ product.price }} грн</td>
+            <td>{% if product.active %}Активний{% else %}Неактивний{% endif %}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="4" style="text-align: center;">Немає товарів з малим запасом</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<div style="margin-top: 15px; text-align: right;">
+    <a href="{% url 'product_list' %}" class="btn">Переглянути всі товари</a>
+</div>
+
+<!-- Кнопки швидкого доступу -->
+<div style="margin-top: 30px; background-color: #f5f5f5; padding: 20px; border-radius: 8px;">
+    <h2>Швидкі дії</h2>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <a href="{% url 'add_sale' %}" class="btn">Додати продаж</a>
+        <a href="/admin/sales_app/product/add/" class="btn">Додати товар</a>
+        <a href="/admin/sales_app/employee/add/" class="btn">Додати працівника</a>
+        <a href="/admin/sales_app/salesplan/add/" class="btn">Створити план продажів</a>
+        <a href="{% url 'daily_stats' %}" class="btn">Щоденна статистика</a>
+    </div>
+</div>
+{% endblock %}
